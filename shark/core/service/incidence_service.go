@@ -58,7 +58,7 @@ func (o *IncidenceService) Get(dtoIn *dto.IncidenceDtoIn) (*dto.IncidenceDtoOut,
 	dtoOut.Name = Incidence.Name
 
 	if Incidence.IncidenceDateTime != nil {
-		dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("Y-m-d H:i:s")
+		dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
 	}
 
 	return dtoOut, nil
@@ -79,7 +79,7 @@ func (o *IncidenceService) GetAll(conditions ...interface{}) []*dto.IncidenceDto
 		dtoOut.Name = Incidence.Name
 
 		if Incidence.IncidenceDateTime != nil {
-			dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("Y-m-d H:i:s")
+			dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
 		}
 
 		arrayIncidenceDto = append(arrayIncidenceDto, dtoOut)
@@ -104,7 +104,7 @@ func (o *IncidenceService) Save(dtoIn *dto.IncidenceDtoIn) error {
 	if len(dtoIn.IncidenceDateTime) == 0 {
 		Incidence.IncidenceDateTime = &now
 	} else {
-		IncidenceDateTime, err := time.Parse("Y-m-d H:i:s", dtoIn.IncidenceDateTime)
+		IncidenceDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.IncidenceDateTime)
 		if err != nil {
 			return err
 		}
