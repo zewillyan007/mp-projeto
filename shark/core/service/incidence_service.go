@@ -54,8 +54,7 @@ func (o *IncidenceService) Get(dtoIn *dto.IncidenceDtoIn) (*dto.IncidenceDtoOut,
 	dtoOut := dto.NewIncidenceDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", Incidence.Id)
-	dtoOut.IdShark = fmt.Sprintf("%d", Incidence.IdShark)
-	dtoOut.Name = Incidence.Name
+	dtoOut.ChipNumber = Incidence.ChipNumber
 
 	if Incidence.IncidenceDateTime != nil {
 		dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
@@ -75,8 +74,7 @@ func (o *IncidenceService) GetAll(conditions ...interface{}) []*dto.IncidenceDto
 		dtoOut := dto.NewIncidenceDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", Incidence.Id)
-		dtoOut.IdShark = fmt.Sprintf("%d", Incidence.IdShark)
-		dtoOut.Name = Incidence.Name
+		dtoOut.ChipNumber = Incidence.ChipNumber
 
 		if Incidence.IncidenceDateTime != nil {
 			dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
@@ -97,8 +95,7 @@ func (o *IncidenceService) Save(dtoIn *dto.IncidenceDtoIn) error {
 		Incidence.Id = int64(id)
 	}
 
-	Incidence.IdShark, _ = strconv.ParseInt(dtoIn.IdShark, 10, 64)
-	Incidence.Name = dtoIn.Name
+	Incidence.ChipNumber = dtoIn.ChipNumber
 	now := time.Now()
 
 	if len(dtoIn.IncidenceDateTime) == 0 {

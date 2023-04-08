@@ -20,7 +20,11 @@ func main() {
 	sr := resource.NewServerResource("env.toml")
 
 	//Register Handlers
+	sr.AddHandler(adapter.NewChipHandlerRest(sr))
 	sr.AddHandler(adapter.NewIncidenceHandlerRest(sr))
+	sr.AddHandler(adapter.NewSexHandlerRest(sr))
+	sr.AddHandler(adapter.NewSharkChipHandlerRest(sr))
+	sr.AddHandler(adapter.NewSharkHandlerRest(sr))
 
 	sr.Run(ctx)
 }

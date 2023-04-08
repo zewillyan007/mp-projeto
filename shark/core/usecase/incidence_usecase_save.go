@@ -20,6 +20,12 @@ func (o *IncidenceUseCaseSave) WithTransaction(transaction port_shared.ITransact
 
 func (o *IncidenceUseCaseSave) Execute(Incidence *entity.Incidence) (*entity.Incidence, error) {
 
+	err := Incidence.IsValid()
+
+	if err != nil {
+		return nil, err
+	}
+
 	entity, err := o.repository.Save(Incidence)
 
 	if err != nil {

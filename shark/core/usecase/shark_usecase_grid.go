@@ -6,15 +6,15 @@ import (
 	"strconv"
 )
 
-type IncidenceUseCaseGrid struct {
-	repository port.IncidenceIRepository
+type SharkUseCaseGrid struct {
+	repository port.SharkIRepository
 }
 
-func NewIncidenceUseCaseGrid(repository port.IncidenceIRepository) *IncidenceUseCaseGrid {
-	return &IncidenceUseCaseGrid{repository: repository}
+func NewSharkUseCaseGrid(repository port.SharkIRepository) *SharkUseCaseGrid {
+	return &SharkUseCaseGrid{repository: repository}
 }
 
-func (o *IncidenceUseCaseGrid) Execute(GridConfig *grid.GridConfig) map[string]interface{} {
+func (o *SharkUseCaseGrid) Execute(GridConfig *grid.GridConfig) map[string]interface{} {
 
 	var page, limit float64
 	var columns, where, order, table, sql string
@@ -26,7 +26,7 @@ func (o *IncidenceUseCaseGrid) Execute(GridConfig *grid.GridConfig) map[string]i
 	orders.LoadGridOrders(GridConfig)
 
 	columns = "*"
-	table = "shark.incidence"
+	table = "shark.shark"
 	order = ""
 	where = params.ToString()
 

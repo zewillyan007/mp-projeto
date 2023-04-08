@@ -7,3 +7,19 @@ import (
 func FactoryIncidence() *entity.Incidence {
 	return entity.NewIncidence()
 }
+
+func FactoryChip() *entity.Chip {
+	return entity.NewChip()
+}
+
+func FactoryShark() *entity.Shark {
+	return entity.NewShark()
+}
+
+func FactorySharkChip() *entity.SharkChip {
+	return entity.NewSharkChip()
+}
+
+func FactorySex() *entity.Sex {
+	return entity.NewSex()
+}
