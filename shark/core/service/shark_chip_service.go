@@ -5,6 +5,7 @@ import (
 	"mp-projeto/shared/grid"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
+	shark_err "mp-projeto/shark/core/err"
 	"mp-projeto/shark/core/port"
 	"mp-projeto/shark/core/usecase"
 	"strconv"
@@ -19,9 +20,12 @@ type SharkChipService struct {
 	ucGetAll          *usecase.SharkChipUseCaseGetAll
 	ucRemove          *usecase.SharkChipUseCaseRemove
 	ucRemoveByIdShark *usecase.SharkChipUseCaseRemoveByIdShark
+
+	//SERVICES
+	scChip *ChipService
 }
 
-func NewSharkChipService(repository port.SharkChipIRepository) *SharkChipService {
+func NewSharkChipService(repository port.SharkChipIRepository, scChip *ChipService) *SharkChipService {
 
 	return &SharkChipService{
 		Repository:        repository,
@@ -31,6 +35,7 @@ func NewSharkChipService(repository port.SharkChipIRepository) *SharkChipService
 		ucGetAll:          usecase.NewSharkChipUseCaseGetAll(repository),
 		ucRemove:          usecase.NewSharkChipUseCaseRemove(repository),
 		ucRemoveByIdShark: usecase.NewSharkChipUseCaseRemoveByIdShark(repository),
+		scChip:            scChip,
 	}
 }
 
@@ -43,6 +48,7 @@ func (o *SharkChipService) WithTransaction(transaction port_shared.ITransaction)
 		ucGetAll:          o.ucGetAll,
 		ucRemove:          o.ucRemove.WithTransaction(transaction),
 		ucRemoveByIdShark: o.ucRemoveByIdShark.WithTransaction(transaction),
+		scChip:            o.scChip.WithTransaction(transaction),
 	}
 }
 
@@ -96,6 +102,25 @@ func (o *SharkChipService) GetAll(conditions ...interface{}) []*dto.SharkChipDto
 }
 
 func (o *SharkChipService) Save(dtoIn *dto.SharkChipDtoIn) error {
+
+	arrayChips := o.scChip.GetAll("id = ?", dtoIn.IdChip)
+
+	for _, chip := range arrayChips {
+		if chip.Status != "NEW" && len(dtoIn.Id) == 0 {
+			return shark_err.SharkChipErrorNewLinked
+		} else {
+			chipDtoIn := dto.NewChipDtoIn()
+			chipDtoIn.Id = chip.Id
+			chipDtoIn.Number = chip.Number
+			chipDtoIn.Status = dtoIn.Status
+
+			err := o.scChip.Save(chipDtoIn)
+
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	SharkChip := FactorySharkChip()
 

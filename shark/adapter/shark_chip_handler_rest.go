@@ -22,7 +22,9 @@ func NewSharkChipHandlerRest(resource *resource.ServerResource) *SharkChipHandle
 
 func (h *SharkChipHandlerRest) MakeRoutes() {
 
-	h.service = service.NewSharkChipService(NewSharkChipRepository(h.resource.Db))
+	scChip := service.NewChipService(NewChipRepository(h.resource.Db))
+
+	h.service = service.NewSharkChipService(NewSharkChipRepository(h.resource.Db), scChip)
 
 	router := h.resource.DefaultRouter("/shark-chips", true)
 	router.Handle("", h.getAll()).Methods(http.MethodGet)

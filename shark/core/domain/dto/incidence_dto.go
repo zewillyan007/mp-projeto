@@ -17,6 +17,7 @@ func NewIncidenceDtoIn() *IncidenceDtoIn {
 type IncidenceDtoOut struct {
 	Id                string
 	ChipNumber        string
+	Shark             *SharkDtoOut
 	IncidenceDateTime string
 }
 
@@ -24,6 +25,7 @@ func NewIncidenceDtoOut() *IncidenceDtoOut {
 	return &IncidenceDtoOut{
 		Id:                "",
 		ChipNumber:        "",
+		Shark:             &SharkDtoOut{},
 		IncidenceDateTime: "",
 	}
 }

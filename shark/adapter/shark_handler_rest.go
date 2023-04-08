@@ -22,7 +22,8 @@ func NewSharkHandlerRest(resource *resource.ServerResource) *SharkHandlerRest {
 
 func (h *SharkHandlerRest) MakeRoutes() {
 
-	scSharkChipService := service.NewSharkChipService(NewSharkChipRepository(h.resource.Db))
+	scChip := service.NewChipService(NewChipRepository(h.resource.Db))
+	scSharkChipService := service.NewSharkChipService(NewSharkChipRepository(h.resource.Db), scChip)
 
 	h.service = service.NewSharkService(NewSharkRepository(h.resource.Db), scSharkChipService)
 

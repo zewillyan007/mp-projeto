@@ -45,7 +45,7 @@ func (o *SharkService) WithTransaction(transaction port_shared.ITransaction) *Sh
 		ucGrid:             o.ucGrid,
 		ucGetAll:           o.ucGetAll,
 		ucRemove:           o.ucRemove.WithTransaction(transaction),
-		scSharkChipService: o.scSharkChipService,
+		scSharkChipService: o.scSharkChipService.WithTransaction(transaction),
 	}
 }
 

@@ -22,7 +22,11 @@ func NewIncidenceHandlerRest(resource *resource.ServerResource) *IncidenceHandle
 
 func (h *IncidenceHandlerRest) MakeRoutes() {
 
-	h.service = service.NewIncidenceService(NewIncidenceRepository(h.resource.Db))
+	scChip := service.NewChipService(NewChipRepository(h.resource.Db))
+	scSharkChip := service.NewSharkChipService(NewSharkChipRepository(h.resource.Db), scChip)
+	scShark := service.NewSharkService(NewSharkRepository(h.resource.Db), scSharkChip)
+
+	h.service = service.NewIncidenceService(NewIncidenceRepository(h.resource.Db), scSharkChip, scShark)
 
 	router := h.resource.DefaultRouter("/incidences", true)
 	router.Handle("", h.getAll()).Methods(http.MethodGet)

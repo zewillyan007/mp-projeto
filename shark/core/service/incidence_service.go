@@ -18,28 +18,36 @@ type IncidenceService struct {
 	ucGrid     *usecase.IncidenceUseCaseGrid
 	ucGetAll   *usecase.IncidenceUseCaseGetAll
 	ucRemove   *usecase.IncidenceUseCaseRemove
+
+	//SERVICES
+	scSharkChip *SharkChipService
+	scShark     *SharkService
 }
 
-func NewIncidenceService(repository port.IncidenceIRepository) *IncidenceService {
+func NewIncidenceService(repository port.IncidenceIRepository, scSharkChip *SharkChipService, scShark *SharkService) *IncidenceService {
 
 	return &IncidenceService{
-		Repository: repository,
-		ucGet:      usecase.NewIncidenceUseCaseGet(repository),
-		ucSave:     usecase.NewIncidenceUseCaseSave(repository),
-		ucGrid:     usecase.NewIncidenceUseCaseGrid(repository),
-		ucGetAll:   usecase.NewIncidenceUseCaseGetAll(repository),
-		ucRemove:   usecase.NewIncidenceUseCaseRemove(repository),
+		Repository:  repository,
+		ucGet:       usecase.NewIncidenceUseCaseGet(repository),
+		ucSave:      usecase.NewIncidenceUseCaseSave(repository),
+		ucGrid:      usecase.NewIncidenceUseCaseGrid(repository),
+		ucGetAll:    usecase.NewIncidenceUseCaseGetAll(repository),
+		ucRemove:    usecase.NewIncidenceUseCaseRemove(repository),
+		scSharkChip: scSharkChip,
+		scShark:     scShark,
 	}
 }
 
 func (o *IncidenceService) WithTransaction(transaction port_shared.ITransaction) *IncidenceService {
 
 	return &IncidenceService{
-		ucGet:    o.ucGet,
-		ucSave:   o.ucSave.WithTransaction(transaction),
-		ucGrid:   o.ucGrid,
-		ucGetAll: o.ucGetAll,
-		ucRemove: o.ucRemove.WithTransaction(transaction),
+		ucGet:       o.ucGet,
+		ucSave:      o.ucSave.WithTransaction(transaction),
+		ucGrid:      o.ucGrid,
+		ucGetAll:    o.ucGetAll,
+		ucRemove:    o.ucRemove.WithTransaction(transaction),
+		scSharkChip: o.scSharkChip.WithTransaction(transaction),
+		scShark:     o.scShark.WithTransaction(transaction),
 	}
 }
 
@@ -60,6 +68,15 @@ func (o *IncidenceService) Get(dtoIn *dto.IncidenceDtoIn) (*dto.IncidenceDtoOut,
 		dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
 	}
 
+	arraySharkChip := o.scSharkChip.GetAll("chip_number = ?", Incidence.ChipNumber)
+
+	if len(arraySharkChip) > 0 {
+		arrayShark := o.scShark.GetAll("id = ?", arraySharkChip[0].IdShark)
+		if len(arrayShark) > 0 {
+			dtoOut.Shark = arrayShark[0]
+		}
+	}
+
 	return dtoOut, nil
 }
 
@@ -78,6 +95,15 @@ func (o *IncidenceService) GetAll(conditions ...interface{}) []*dto.IncidenceDto
 
 		if Incidence.IncidenceDateTime != nil {
 			dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
+		}
+
+		arraySharkChip := o.scSharkChip.GetAll("chip_number = ?", Incidence.ChipNumber)
+
+		if len(arraySharkChip) > 0 {
+			arrayShark := o.scShark.GetAll("id = ?", arraySharkChip[0].IdShark)
+			if len(arrayShark) > 0 {
+				dtoOut.Shark = arrayShark[0]
+			}
 		}
 
 		arrayIncidenceDto = append(arrayIncidenceDto, dtoOut)
