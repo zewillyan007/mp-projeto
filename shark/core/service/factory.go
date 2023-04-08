@@ -23,3 +23,11 @@ func FactorySharkChip() *entity.SharkChip {
 func FactorySex() *entity.Sex {
 	return entity.NewSex()
 }
+
+func FactoryChipStatusType() *entity.ChipStatusType {
+	return entity.NewChipStatusType()
+}
+
+func FactorySharkChipStatusType() *entity.SharkChipStatusType {
+	return entity.NewSharkChipStatusType()
+}
