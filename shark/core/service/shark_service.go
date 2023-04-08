@@ -5,6 +5,7 @@ import (
 	"mp-projeto/shared/grid"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
+	"mp-projeto/shark/core/domain/entity"
 	"mp-projeto/shark/core/port"
 	"mp-projeto/shark/core/usecase"
 	"strconv"
@@ -18,32 +19,37 @@ type SharkService struct {
 	ucGrid     *usecase.SharkUseCaseGrid
 	ucGetAll   *usecase.SharkUseCaseGetAll
 	ucRemove   *usecase.SharkUseCaseRemove
+
+	//SERVICE
+	scSharkChipService *SharkChipService
 }
 
-func NewSharkService(repository port.SharkIRepository) *SharkService {
+func NewSharkService(repository port.SharkIRepository, scSharkChipService *SharkChipService) *SharkService {
 
 	return &SharkService{
-		Repository: repository,
-		ucGet:      usecase.NewSharkUseCaseGet(repository),
-		ucSave:     usecase.NewSharkUseCaseSave(repository),
-		ucGrid:     usecase.NewSharkUseCaseGrid(repository),
-		ucGetAll:   usecase.NewSharkUseCaseGetAll(repository),
-		ucRemove:   usecase.NewSharkUseCaseRemove(repository),
+		Repository:         repository,
+		ucGet:              usecase.NewSharkUseCaseGet(repository),
+		ucSave:             usecase.NewSharkUseCaseSave(repository),
+		ucGrid:             usecase.NewSharkUseCaseGrid(repository),
+		ucGetAll:           usecase.NewSharkUseCaseGetAll(repository),
+		ucRemove:           usecase.NewSharkUseCaseRemove(repository),
+		scSharkChipService: scSharkChipService,
 	}
 }
 
 func (o *SharkService) WithTransaction(transaction port_shared.ITransaction) *SharkService {
 
 	return &SharkService{
-		ucGet:    o.ucGet,
-		ucSave:   o.ucSave.WithTransaction(transaction),
-		ucGrid:   o.ucGrid,
-		ucGetAll: o.ucGetAll,
-		ucRemove: o.ucRemove.WithTransaction(transaction),
+		ucGet:              o.ucGet,
+		ucSave:             o.ucSave.WithTransaction(transaction),
+		ucGrid:             o.ucGrid,
+		ucGetAll:           o.ucGetAll,
+		ucRemove:           o.ucRemove.WithTransaction(transaction),
+		scSharkChipService: o.scSharkChipService,
 	}
 }
 
-func (o *SharkService) Get(dtoIn *dto.SharkDtoIn) (*dto.SharkDtoOut, error) {
+func (o *SharkService) Get(dtoIn *dto.SharkDtoIn) (*dto.SharkAllDtoOut, error) {
 
 	id, _ := strconv.Atoi(dtoIn.Id)
 	Shark, err := o.ucGet.Execute(int64(id))
@@ -51,7 +57,7 @@ func (o *SharkService) Get(dtoIn *dto.SharkDtoIn) (*dto.SharkDtoOut, error) {
 		return nil, err
 	}
 
-	dtoOut := dto.NewSharkDtoOut()
+	dtoOut := dto.NewSharkAllDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", Shark.Id)
 	dtoOut.Species = Shark.Species
@@ -66,6 +72,8 @@ func (o *SharkService) Get(dtoIn *dto.SharkDtoIn) (*dto.SharkDtoOut, error) {
 	if Shark.ChangeDateTime != nil {
 		dtoOut.ChangeDateTime = Shark.ChangeDateTime.Format("2006-01-02 15:04:05 -0700")
 	}
+
+	dtoOut.SharkChips = o.scSharkChipService.GetAll("id_shark = ?", int64(id))
 
 	return dtoOut, nil
 }
@@ -100,7 +108,54 @@ func (o *SharkService) GetAll(conditions ...interface{}) []*dto.SharkDtoOut {
 	return arraySharkDto
 }
 
-func (o *SharkService) Save(dtoIn *dto.SharkDtoIn) error {
+func (o *SharkService) SaveAll(dtoIn *dto.SharkAllDtoIn) (*entity.Shark, error) {
+
+	var err error
+
+	dtoShark := dto.NewSharkDtoIn()
+	dtoShark.Id = dtoIn.Id
+	dtoShark.Species = dtoIn.Species
+	dtoShark.Length = dtoIn.Length
+	dtoShark.Weight = dtoIn.Weight
+	dtoShark.Sex = dtoIn.Sex
+	dtoShark.CreationDateTime = dtoIn.CreationDateTime
+	dtoShark.ChangeDateTime = dtoIn.ChangeDateTime
+
+	entityShark, err := o.Save(dtoShark)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(dtoShark.Id) > 0 {
+		IdShark, _ := strconv.Atoi(dtoShark.Id)
+		err = o.scSharkChipService.RemoveAllByIdShark(int64(IdShark))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, item := range dtoIn.SharkChips {
+
+		dtoSharkChip := dto.NewSharkChipDtoIn()
+		dtoSharkChip.Id = item.Id
+		dtoSharkChip.IdShark = fmt.Sprintf("%d", entityShark.Id)
+		dtoSharkChip.IdChip = item.IdChip
+		dtoSharkChip.ChipNumber = item.ChipNumber
+		dtoSharkChip.Status = item.Status
+		dtoSharkChip.CreationDateTime = item.CreationDateTime
+
+		err = o.scSharkChipService.Save(dtoSharkChip)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
+}
+
+func (o *SharkService) Save(dtoIn *dto.SharkDtoIn) (*entity.Shark, error) {
 
 	Shark := FactoryShark()
 
@@ -126,7 +181,7 @@ func (o *SharkService) Save(dtoIn *dto.SharkDtoIn) error {
 	} else {
 		CreationDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.CreationDateTime)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		Shark.CreationDateTime = &CreationDateTime
 	}
@@ -136,17 +191,17 @@ func (o *SharkService) Save(dtoIn *dto.SharkDtoIn) error {
 	} else {
 		ChangeDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.ChangeDateTime)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		Shark.ChangeDateTime = &ChangeDateTime
 	}
 
-	_, err := o.ucSave.Execute(Shark)
+	entityShark, err := o.ucSave.Execute(Shark)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return entityShark, nil
 }
 
 func (o *SharkService) Remove(dtoIn *dto.SharkDtoIn) error {

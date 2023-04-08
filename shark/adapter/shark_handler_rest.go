@@ -22,7 +22,9 @@ func NewSharkHandlerRest(resource *resource.ServerResource) *SharkHandlerRest {
 
 func (h *SharkHandlerRest) MakeRoutes() {
 
-	h.service = service.NewSharkService(NewSharkRepository(h.resource.Db))
+	scSharkChipService := service.NewSharkChipService(NewSharkChipRepository(h.resource.Db))
+
+	h.service = service.NewSharkService(NewSharkRepository(h.resource.Db), scSharkChipService)
 
 	router := h.resource.DefaultRouter("/sharks", true)
 	router.Handle("", h.getAll()).Methods(http.MethodGet)
@@ -38,17 +40,17 @@ func (h *SharkHandlerRest) get() http.HandlerFunc {
 
 		var err error
 		var SharkDtoIn *dto.SharkDtoIn
-		var SharkDtoOut *dto.SharkDtoOut
+		var SharkAllDtoOut *dto.SharkAllDtoOut
 
 		h.resource.Restful.LoadData(w, r)
 		SharkDtoIn = dto.NewSharkDtoIn()
 		h.resource.Restful.BindData(&SharkDtoIn)
-		SharkDtoOut, err = h.service.Get(SharkDtoIn)
+		SharkAllDtoOut, err = h.service.Get(SharkDtoIn)
 
 		if err != nil {
 			err = h.resource.Restful.ResponseError(w, r, resource.HTTP_NOT_FOUND, err.Error())
 		} else {
-			err = h.resource.Restful.ResponseData(w, r, resource.HTTP_OK, SharkDtoOut)
+			err = h.resource.Restful.ResponseData(w, r, resource.HTTP_OK, SharkAllDtoOut)
 		}
 
 		if err != nil {
@@ -69,14 +71,14 @@ func (h *SharkHandlerRest) create() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		var err error
-		var SharkDtoIn *dto.SharkDtoIn
+		var SharkAllDtoIn *dto.SharkAllDtoIn
 
 		h.resource.Restful.LoadData(w, r)
-		SharkDtoIn = dto.NewSharkDtoIn()
-		h.resource.Restful.BindData(&SharkDtoIn)
+		SharkAllDtoIn = dto.NewSharkAllDtoIn()
+		h.resource.Restful.BindData(&SharkAllDtoIn)
 		transaction := adapter_shared.BeginTransaction(h.resource.Db)
 
-		err = h.service.WithTransaction(transaction).Save(SharkDtoIn)
+		_, err = h.service.WithTransaction(transaction).SaveAll(SharkAllDtoIn)
 
 		if err != nil {
 			transaction.Rollback()
@@ -96,14 +98,14 @@ func (h *SharkHandlerRest) save() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		var err error
-		var SharkDtoIn *dto.SharkDtoIn
+		var SharkAllDtoIn *dto.SharkAllDtoIn
 
 		h.resource.Restful.LoadData(w, r)
-		SharkDtoIn = dto.NewSharkDtoIn()
-		h.resource.Restful.BindData(&SharkDtoIn)
+		SharkAllDtoIn = dto.NewSharkAllDtoIn()
+		h.resource.Restful.BindData(&SharkAllDtoIn)
 		transaction := adapter_shared.BeginTransaction(h.resource.Db)
 
-		err = h.service.WithTransaction(transaction).Save(SharkDtoIn)
+		_, err = h.service.WithTransaction(transaction).SaveAll(SharkAllDtoIn)
 
 		if err != nil {
 			transaction.Rollback()

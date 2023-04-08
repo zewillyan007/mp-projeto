@@ -55,6 +55,7 @@ func (o *ChipService) Get(dtoIn *dto.ChipDtoIn) (*dto.ChipDtoOut, error) {
 
 	dtoOut.Id = fmt.Sprintf("%d", Chip.Id)
 	dtoOut.Number = Chip.Number
+	dtoOut.Status = Chip.Status
 
 	if Chip.CreationDateTime != nil {
 		dtoOut.CreationDateTime = Chip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
@@ -79,6 +80,7 @@ func (o *ChipService) GetAll(conditions ...interface{}) []*dto.ChipDtoOut {
 
 		dtoOut.Id = fmt.Sprintf("%d", Chip.Id)
 		dtoOut.Number = Chip.Number
+		dtoOut.Status = Chip.Status
 
 		if Chip.CreationDateTime != nil {
 			dtoOut.CreationDateTime = Chip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
@@ -104,6 +106,8 @@ func (o *ChipService) Save(dtoIn *dto.ChipDtoIn) error {
 	}
 
 	Chip.Number = dtoIn.Number
+	Chip.Status = dtoIn.Status
+
 	now := time.Now()
 
 	if len(dtoIn.CreationDateTime) == 0 {

@@ -43,3 +43,27 @@ func NewSharkDtoOut() *SharkDtoOut {
 		ChangeDateTime:   "",
 	}
 }
+
+type SharkAllDtoIn struct {
+	*SharkDtoIn
+	SharkChips []*SharkChipDtoIn
+}
+
+func NewSharkAllDtoIn() *SharkAllDtoIn {
+	return &SharkAllDtoIn{
+		SharkDtoIn: &SharkDtoIn{},
+		SharkChips: []*SharkChipDtoIn{},
+	}
+}
+
+type SharkAllDtoOut struct {
+	*SharkDtoOut
+	SharkChips []*SharkChipDtoOut
+}
+
+func NewSharkAllDtoOut() *SharkAllDtoOut {
+	return &SharkAllDtoOut{
+		SharkDtoOut: &SharkDtoOut{},
+		SharkChips:  []*SharkChipDtoOut{},
+	}
+}

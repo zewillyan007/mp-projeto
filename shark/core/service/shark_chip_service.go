@@ -12,34 +12,37 @@ import (
 )
 
 type SharkChipService struct {
-	Repository port.SharkChipIRepository
-	ucGet      *usecase.SharkChipUseCaseGet
-	ucSave     *usecase.SharkChipUseCaseSave
-	ucGrid     *usecase.SharkChipUseCaseGrid
-	ucGetAll   *usecase.SharkChipUseCaseGetAll
-	ucRemove   *usecase.SharkChipUseCaseRemove
+	Repository        port.SharkChipIRepository
+	ucGet             *usecase.SharkChipUseCaseGet
+	ucSave            *usecase.SharkChipUseCaseSave
+	ucGrid            *usecase.SharkChipUseCaseGrid
+	ucGetAll          *usecase.SharkChipUseCaseGetAll
+	ucRemove          *usecase.SharkChipUseCaseRemove
+	ucRemoveByIdShark *usecase.SharkChipUseCaseRemoveByIdShark
 }
 
 func NewSharkChipService(repository port.SharkChipIRepository) *SharkChipService {
 
 	return &SharkChipService{
-		Repository: repository,
-		ucGet:      usecase.NewSharkChipUseCaseGet(repository),
-		ucSave:     usecase.NewSharkChipUseCaseSave(repository),
-		ucGrid:     usecase.NewSharkChipUseCaseGrid(repository),
-		ucGetAll:   usecase.NewSharkChipUseCaseGetAll(repository),
-		ucRemove:   usecase.NewSharkChipUseCaseRemove(repository),
+		Repository:        repository,
+		ucGet:             usecase.NewSharkChipUseCaseGet(repository),
+		ucSave:            usecase.NewSharkChipUseCaseSave(repository),
+		ucGrid:            usecase.NewSharkChipUseCaseGrid(repository),
+		ucGetAll:          usecase.NewSharkChipUseCaseGetAll(repository),
+		ucRemove:          usecase.NewSharkChipUseCaseRemove(repository),
+		ucRemoveByIdShark: usecase.NewSharkChipUseCaseRemoveByIdShark(repository),
 	}
 }
 
 func (o *SharkChipService) WithTransaction(transaction port_shared.ITransaction) *SharkChipService {
 
 	return &SharkChipService{
-		ucGet:    o.ucGet,
-		ucSave:   o.ucSave.WithTransaction(transaction),
-		ucGrid:   o.ucGrid,
-		ucGetAll: o.ucGetAll,
-		ucRemove: o.ucRemove.WithTransaction(transaction),
+		ucGet:             o.ucGet,
+		ucSave:            o.ucSave.WithTransaction(transaction),
+		ucGrid:            o.ucGrid,
+		ucGetAll:          o.ucGetAll,
+		ucRemove:          o.ucRemove.WithTransaction(transaction),
+		ucRemoveByIdShark: o.ucRemoveByIdShark.WithTransaction(transaction),
 	}
 }
 
@@ -56,6 +59,8 @@ func (o *SharkChipService) Get(dtoIn *dto.SharkChipDtoIn) (*dto.SharkChipDtoOut,
 	dtoOut.Id = fmt.Sprintf("%d", SharkChip.Id)
 	dtoOut.IdShark = fmt.Sprintf("%d", SharkChip.IdShark)
 	dtoOut.IdChip = fmt.Sprintf("%d", SharkChip.IdChip)
+	dtoOut.ChipNumber = SharkChip.ChipNumber
+	dtoOut.Status = SharkChip.Status
 
 	if SharkChip.CreationDateTime != nil {
 		dtoOut.CreationDateTime = SharkChip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
@@ -77,6 +82,8 @@ func (o *SharkChipService) GetAll(conditions ...interface{}) []*dto.SharkChipDto
 		dtoOut.Id = fmt.Sprintf("%d", SharkChip.Id)
 		dtoOut.IdShark = fmt.Sprintf("%d", SharkChip.IdShark)
 		dtoOut.IdChip = fmt.Sprintf("%d", SharkChip.IdChip)
+		dtoOut.ChipNumber = SharkChip.ChipNumber
+		dtoOut.Status = SharkChip.Status
 
 		if SharkChip.CreationDateTime != nil {
 			dtoOut.CreationDateTime = SharkChip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
@@ -99,6 +106,8 @@ func (o *SharkChipService) Save(dtoIn *dto.SharkChipDtoIn) error {
 
 	SharkChip.IdShark, _ = strconv.ParseInt(dtoIn.IdShark, 10, 64)
 	SharkChip.IdChip, _ = strconv.ParseInt(dtoIn.IdChip, 10, 64)
+	SharkChip.ChipNumber = dtoIn.ChipNumber
+	SharkChip.Status = dtoIn.Status
 	now := time.Now()
 
 	if len(dtoIn.CreationDateTime) == 0 {
@@ -137,6 +146,11 @@ func (o *SharkChipService) Remove(dtoIn *dto.SharkChipDtoIn) error {
 	}
 
 	return nil
+}
+
+func (o *SharkChipService) RemoveAllByIdShark(IdShark int64) error {
+
+	return o.ucRemoveByIdShark.Execute(IdShark)
 }
 
 func (o *SharkChipService) Grid(GridConfig *grid.GridConfig) map[string]interface{} {
