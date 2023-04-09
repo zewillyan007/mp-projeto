@@ -10,7 +10,7 @@ import (
 
 const (
 	svcName    = "shark-scan"
-	svcVersion = "1.0.0"
+	svcVersion = "1.0.1"
 )
 
 func main() {
