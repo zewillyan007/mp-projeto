@@ -8,7 +8,16 @@ import (
 	"os/signal"
 )
 
+const (
+	svcName    = "shark-scan"
+	svcVersion = "1.0.0"
+)
+
 func main() {
+
+	_ = svcName
+	_ = svcVersion
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	ctx, cancel := context.WithCancel(context.Background())

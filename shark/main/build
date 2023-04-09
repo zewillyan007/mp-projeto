@@ -1,0 +1,15 @@
+#!/bin/bash
+svcname=shark-scan
+source=main.go
+
+v=`grep -E '(svcVersion\s*=\s*)"' $source`; v=${v//=/ }; v=${v//\"/}; v=($v); v=${v[1]}
+if [ "$v" = "" ];
+then
+        echo "Could not find service version on file $source!"
+        exit 1
+fi
+svcfile="$svcname-$v"
+#go build -ldflags="-extldflags=-static" -tags sqlite_omit_load_extension -o $svcfile
+go build -o $svcfile
+#tar -zcvf $svcfile.tar.gz $svcfile
+exit 0
