@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"mp-projeto/shared/helper"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
 	"mp-projeto/shark/core/port"
@@ -40,6 +41,7 @@ func (o *ChipStatusTypeService) Get(dtoIn *dto.ChipStatusTypeDtoIn) (*dto.ChipSt
 		return nil, err
 	}
 
+	DateHelper := helper.NewDateHelper()
 	dtoOut := dto.NewChipStatusTypeDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", ChipStatusType.Id)
@@ -48,15 +50,15 @@ func (o *ChipStatusTypeService) Get(dtoIn *dto.ChipStatusTypeDtoIn) (*dto.ChipSt
 	dtoOut.Hint = ChipStatusType.Hint
 
 	if ChipStatusType.CreationDateTime != nil {
-		dtoOut.CreationDateTime = ChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *ChipStatusType.CreationDateTime)
 	}
 
 	if ChipStatusType.ChangeDateTime != nil {
-		dtoOut.ChangeDateTime = ChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *ChipStatusType.ChangeDateTime)
 	}
 
 	if ChipStatusType.DisableDateTime != nil {
-		dtoOut.DisableDateTime = ChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.DisableDateTime = DateHelper.Format("2006-01-02 15:04:05", *ChipStatusType.DisableDateTime)
 	}
 
 	return dtoOut, nil
@@ -70,6 +72,7 @@ func (o *ChipStatusTypeService) GetAll(conditions ...interface{}) []*dto.ChipSta
 
 	for _, ChipStatusType := range arrayChipStatusType {
 
+		DateHelper := helper.NewDateHelper()
 		dtoOut := dto.NewChipStatusTypeDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", ChipStatusType.Id)
@@ -78,15 +81,15 @@ func (o *ChipStatusTypeService) GetAll(conditions ...interface{}) []*dto.ChipSta
 		dtoOut.Hint = ChipStatusType.Hint
 
 		if ChipStatusType.CreationDateTime != nil {
-			dtoOut.CreationDateTime = ChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *ChipStatusType.CreationDateTime)
 		}
 
 		if ChipStatusType.ChangeDateTime != nil {
-			dtoOut.ChangeDateTime = ChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *ChipStatusType.ChangeDateTime)
 		}
 
 		if ChipStatusType.DisableDateTime != nil {
-			dtoOut.DisableDateTime = ChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.DisableDateTime = DateHelper.Format("2006-01-02 15:04:05", *ChipStatusType.DisableDateTime)
 		}
 
 		arrayChipStatusTypeDto = append(arrayChipStatusTypeDto, dtoOut)

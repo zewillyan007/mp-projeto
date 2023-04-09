@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"mp-projeto/shared/grid"
+	"mp-projeto/shared/helper"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
 	shark_err "mp-projeto/shark/core/err"
@@ -60,6 +61,7 @@ func (o *SharkChipService) Get(dtoIn *dto.SharkChipDtoIn) (*dto.SharkChipDtoOut,
 		return nil, err
 	}
 
+	DateHelper := helper.NewDateHelper()
 	dtoOut := dto.NewSharkChipDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", SharkChip.Id)
@@ -69,7 +71,7 @@ func (o *SharkChipService) Get(dtoIn *dto.SharkChipDtoIn) (*dto.SharkChipDtoOut,
 	dtoOut.Status = SharkChip.Status
 
 	if SharkChip.CreationDateTime != nil {
-		dtoOut.CreationDateTime = SharkChip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChip.CreationDateTime)
 	}
 
 	return dtoOut, nil
@@ -83,6 +85,7 @@ func (o *SharkChipService) GetAll(conditions ...interface{}) []*dto.SharkChipDto
 
 	for _, SharkChip := range arraySharkChip {
 
+		DateHelper := helper.NewDateHelper()
 		dtoOut := dto.NewSharkChipDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", SharkChip.Id)
@@ -92,7 +95,7 @@ func (o *SharkChipService) GetAll(conditions ...interface{}) []*dto.SharkChipDto
 		dtoOut.Status = SharkChip.Status
 
 		if SharkChip.CreationDateTime != nil {
-			dtoOut.CreationDateTime = SharkChip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChip.CreationDateTime)
 		}
 
 		arraySharkChipDto = append(arraySharkChipDto, dtoOut)
@@ -103,6 +106,7 @@ func (o *SharkChipService) GetAll(conditions ...interface{}) []*dto.SharkChipDto
 
 func (o *SharkChipService) Save(dtoIn *dto.SharkChipDtoIn) error {
 
+	DateHelper := helper.NewDateHelper()
 	arrayChips := o.scChip.GetAll("id = ?", dtoIn.IdChip)
 
 	for _, chip := range arrayChips {
@@ -143,11 +147,11 @@ func (o *SharkChipService) Save(dtoIn *dto.SharkChipDtoIn) error {
 			SharkChip.CreationDateTime = SharkChipCurrent.CreationDateTime
 		}
 	} else {
-		CreationDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.CreationDateTime)
+		CreationDateTime, err := DateHelper.Parse("2006-01-02 15:04:05", dtoIn.CreationDateTime)
 		if err != nil {
 			return err
 		}
-		SharkChip.CreationDateTime = &CreationDateTime
+		SharkChip.CreationDateTime = CreationDateTime
 	}
 
 	_, err := o.ucSave.Execute(SharkChip)

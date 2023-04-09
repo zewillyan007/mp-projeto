@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"mp-projeto/shared/helper"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
 	"mp-projeto/shark/core/port"
@@ -40,6 +41,7 @@ func (o *SexService) Get(dtoIn *dto.SexDtoIn) (*dto.SexDtoOut, error) {
 		return nil, err
 	}
 
+	DateHelper := helper.NewDateHelper()
 	dtoOut := dto.NewSexDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", Sex.Id)
@@ -48,15 +50,15 @@ func (o *SexService) Get(dtoIn *dto.SexDtoIn) (*dto.SexDtoOut, error) {
 	dtoOut.Hint = Sex.Hint
 
 	if Sex.CreationDateTime != nil {
-		dtoOut.CreationDateTime = Sex.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *Sex.CreationDateTime)
 	}
 
 	if Sex.ChangeDateTime != nil {
-		dtoOut.ChangeDateTime = Sex.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *Sex.ChangeDateTime)
 	}
 
 	if Sex.DisableDateTime != nil {
-		dtoOut.DisableDateTime = Sex.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.DisableDateTime = DateHelper.Format("2006-01-02 15:04:05", *Sex.DisableDateTime)
 	}
 
 	return dtoOut, nil
@@ -70,6 +72,7 @@ func (o *SexService) GetAll(conditions ...interface{}) []*dto.SexDtoOut {
 
 	for _, Sex := range arraySex {
 
+		DateHelper := helper.NewDateHelper()
 		dtoOut := dto.NewSexDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", Sex.Id)
@@ -78,15 +81,15 @@ func (o *SexService) GetAll(conditions ...interface{}) []*dto.SexDtoOut {
 		dtoOut.Hint = Sex.Hint
 
 		if Sex.CreationDateTime != nil {
-			dtoOut.CreationDateTime = Sex.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *Sex.CreationDateTime)
 		}
 
 		if Sex.ChangeDateTime != nil {
-			dtoOut.ChangeDateTime = Sex.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *Sex.ChangeDateTime)
 		}
 
 		if Sex.DisableDateTime != nil {
-			dtoOut.DisableDateTime = Sex.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.DisableDateTime = DateHelper.Format("2006-01-02 15:04:05", *Sex.DisableDateTime)
 		}
 
 		arraySexDto = append(arraySexDto, dtoOut)

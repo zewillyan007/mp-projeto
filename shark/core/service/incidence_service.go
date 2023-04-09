@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"mp-projeto/shared/grid"
+	"mp-projeto/shared/helper"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
 	"mp-projeto/shark/core/port"
@@ -59,13 +60,14 @@ func (o *IncidenceService) Get(dtoIn *dto.IncidenceDtoIn) (*dto.IncidenceDtoOut,
 		return nil, err
 	}
 
+	DateHelper := helper.NewDateHelper()
 	dtoOut := dto.NewIncidenceDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", Incidence.Id)
 	dtoOut.ChipNumber = Incidence.ChipNumber
 
 	if Incidence.IncidenceDateTime != nil {
-		dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.IncidenceDateTime = DateHelper.Format("2006-01-02 15:04:05", *Incidence.IncidenceDateTime)
 	}
 
 	arraySharkChip := o.scSharkChip.GetAll("chip_number = ?", Incidence.ChipNumber)
@@ -88,13 +90,14 @@ func (o *IncidenceService) GetAll(conditions ...interface{}) []*dto.IncidenceDto
 
 	for _, Incidence := range arrayIncidence {
 
+		DateHelper := helper.NewDateHelper()
 		dtoOut := dto.NewIncidenceDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", Incidence.Id)
 		dtoOut.ChipNumber = Incidence.ChipNumber
 
 		if Incidence.IncidenceDateTime != nil {
-			dtoOut.IncidenceDateTime = Incidence.IncidenceDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.IncidenceDateTime = DateHelper.Format("2006-01-02 15:04:05", *Incidence.IncidenceDateTime)
 		}
 
 		arraySharkChip := o.scSharkChip.GetAll("chip_number = ?", Incidence.ChipNumber)
@@ -114,6 +117,7 @@ func (o *IncidenceService) GetAll(conditions ...interface{}) []*dto.IncidenceDto
 
 func (o *IncidenceService) Save(dtoIn *dto.IncidenceDtoIn) error {
 
+	DateHelper := helper.NewDateHelper()
 	Incidence := FactoryIncidence()
 
 	if len(dtoIn.Id) > 0 {
@@ -127,11 +131,11 @@ func (o *IncidenceService) Save(dtoIn *dto.IncidenceDtoIn) error {
 	if len(dtoIn.IncidenceDateTime) == 0 {
 		Incidence.IncidenceDateTime = &now
 	} else {
-		IncidenceDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.IncidenceDateTime)
+		IncidenceDateTime, err := DateHelper.Parse("2006-01-02 15:04:05", dtoIn.IncidenceDateTime)
 		if err != nil {
 			return err
 		}
-		Incidence.IncidenceDateTime = &IncidenceDateTime
+		Incidence.IncidenceDateTime = IncidenceDateTime
 	}
 
 	_, err := o.ucSave.Execute(Incidence)

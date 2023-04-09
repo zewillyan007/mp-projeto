@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"mp-projeto/shared/grid"
+	"mp-projeto/shared/helper"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
 	"mp-projeto/shark/core/domain/entity"
@@ -57,6 +58,7 @@ func (o *SharkService) Get(dtoIn *dto.SharkDtoIn) (*dto.SharkAllDtoOut, error) {
 		return nil, err
 	}
 
+	DateHelper := helper.NewDateHelper()
 	dtoOut := dto.NewSharkAllDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", Shark.Id)
@@ -66,11 +68,11 @@ func (o *SharkService) Get(dtoIn *dto.SharkDtoIn) (*dto.SharkAllDtoOut, error) {
 	dtoOut.Sex = Shark.Sex
 
 	if Shark.CreationDateTime != nil {
-		dtoOut.CreationDateTime = Shark.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *Shark.CreationDateTime)
 	}
 
 	if Shark.ChangeDateTime != nil {
-		dtoOut.ChangeDateTime = Shark.ChangeDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *Shark.ChangeDateTime)
 	}
 
 	dtoOut.SharkChips = o.scSharkChipService.GetAll("id_shark = ?", int64(id))
@@ -86,6 +88,7 @@ func (o *SharkService) GetAll(conditions ...interface{}) []*dto.SharkDtoOut {
 
 	for _, Shark := range arrayShark {
 
+		DateHelper := helper.NewDateHelper()
 		dtoOut := dto.NewSharkDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", Shark.Id)
@@ -95,11 +98,11 @@ func (o *SharkService) GetAll(conditions ...interface{}) []*dto.SharkDtoOut {
 		dtoOut.Sex = Shark.Sex
 
 		if Shark.CreationDateTime != nil {
-			dtoOut.CreationDateTime = Shark.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *Shark.CreationDateTime)
 		}
 
 		if Shark.ChangeDateTime != nil {
-			dtoOut.ChangeDateTime = Shark.ChangeDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *Shark.ChangeDateTime)
 		}
 
 		arraySharkDto = append(arraySharkDto, dtoOut)
@@ -157,6 +160,7 @@ func (o *SharkService) SaveAll(dtoIn *dto.SharkAllDtoIn) (*entity.Shark, error) 
 
 func (o *SharkService) Save(dtoIn *dto.SharkDtoIn) (*entity.Shark, error) {
 
+	DateHelper := helper.NewDateHelper()
 	Shark := FactoryShark()
 
 	if len(dtoIn.Id) > 0 {
@@ -179,21 +183,21 @@ func (o *SharkService) Save(dtoIn *dto.SharkDtoIn) (*entity.Shark, error) {
 			Shark.CreationDateTime = SharkCurrent.CreationDateTime
 		}
 	} else {
-		CreationDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.CreationDateTime)
+		CreationDateTime, err := DateHelper.Parse("2006-01-02 15:04:05", dtoIn.CreationDateTime)
 		if err != nil {
 			return nil, err
 		}
-		Shark.CreationDateTime = &CreationDateTime
+		Shark.CreationDateTime = CreationDateTime
 	}
 
 	if len(dtoIn.ChangeDateTime) == 0 {
 		Shark.ChangeDateTime = &now
 	} else {
-		ChangeDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.ChangeDateTime)
+		ChangeDateTime, err := DateHelper.Parse("2006-01-02 15:04:05", dtoIn.ChangeDateTime)
 		if err != nil {
 			return nil, err
 		}
-		Shark.ChangeDateTime = &ChangeDateTime
+		Shark.ChangeDateTime = ChangeDateTime
 	}
 
 	entityShark, err := o.ucSave.Execute(Shark)

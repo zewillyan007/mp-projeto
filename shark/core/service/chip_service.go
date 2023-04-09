@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"mp-projeto/shared/grid"
+	"mp-projeto/shared/helper"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
 	"mp-projeto/shark/core/port"
@@ -51,6 +52,7 @@ func (o *ChipService) Get(dtoIn *dto.ChipDtoIn) (*dto.ChipDtoOut, error) {
 		return nil, err
 	}
 
+	DateHelper := helper.NewDateHelper()
 	dtoOut := dto.NewChipDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", Chip.Id)
@@ -58,11 +60,11 @@ func (o *ChipService) Get(dtoIn *dto.ChipDtoIn) (*dto.ChipDtoOut, error) {
 	dtoOut.Status = Chip.Status
 
 	if Chip.CreationDateTime != nil {
-		dtoOut.CreationDateTime = Chip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *Chip.CreationDateTime)
 	}
 
 	if Chip.ChangeDateTime != nil {
-		dtoOut.ChangeDateTime = Chip.ChangeDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *Chip.ChangeDateTime)
 	}
 
 	return dtoOut, nil
@@ -76,6 +78,7 @@ func (o *ChipService) GetAll(conditions ...interface{}) []*dto.ChipDtoOut {
 
 	for _, Chip := range arrayChip {
 
+		DateHelper := helper.NewDateHelper()
 		dtoOut := dto.NewChipDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", Chip.Id)
@@ -83,11 +86,11 @@ func (o *ChipService) GetAll(conditions ...interface{}) []*dto.ChipDtoOut {
 		dtoOut.Status = Chip.Status
 
 		if Chip.CreationDateTime != nil {
-			dtoOut.CreationDateTime = Chip.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *Chip.CreationDateTime)
 		}
 
 		if Chip.ChangeDateTime != nil {
-			dtoOut.ChangeDateTime = Chip.ChangeDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *Chip.ChangeDateTime)
 		}
 
 		arrayChipDto = append(arrayChipDto, dtoOut)
@@ -98,6 +101,7 @@ func (o *ChipService) GetAll(conditions ...interface{}) []*dto.ChipDtoOut {
 
 func (o *ChipService) Save(dtoIn *dto.ChipDtoIn) error {
 
+	DateHelper := helper.NewDateHelper()
 	Chip := FactoryChip()
 
 	if len(dtoIn.Id) > 0 {
@@ -118,21 +122,21 @@ func (o *ChipService) Save(dtoIn *dto.ChipDtoIn) error {
 			Chip.CreationDateTime = ChipCurrent.CreationDateTime
 		}
 	} else {
-		CreationDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.CreationDateTime)
+		CreationDateTime, err := DateHelper.Parse("2006-01-02 15:04:05", dtoIn.CreationDateTime)
 		if err != nil {
 			return err
 		}
-		Chip.CreationDateTime = &CreationDateTime
+		Chip.CreationDateTime = CreationDateTime
 	}
 
 	if len(dtoIn.ChangeDateTime) == 0 {
 		Chip.ChangeDateTime = &now
 	} else {
-		ChangeDateTime, err := time.Parse("2006-01-02 15:04:05 -0700", dtoIn.ChangeDateTime)
+		ChangeDateTime, err := DateHelper.Parse("2006-01-02 15:04:05", dtoIn.ChangeDateTime)
 		if err != nil {
 			return err
 		}
-		Chip.ChangeDateTime = &ChangeDateTime
+		Chip.ChangeDateTime = ChangeDateTime
 	}
 
 	_, err := o.ucSave.Execute(Chip)

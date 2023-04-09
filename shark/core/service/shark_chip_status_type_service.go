@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"mp-projeto/shared/helper"
 	port_shared "mp-projeto/shared/port"
 	"mp-projeto/shark/core/domain/dto"
 	"mp-projeto/shark/core/port"
@@ -40,6 +41,7 @@ func (o *SharkChipStatusTypeService) Get(dtoIn *dto.SharkChipStatusTypeDtoIn) (*
 		return nil, err
 	}
 
+	DateHelper := helper.NewDateHelper()
 	dtoOut := dto.NewSharkChipStatusTypeDtoOut()
 
 	dtoOut.Id = fmt.Sprintf("%d", SharkChipStatusType.Id)
@@ -48,15 +50,15 @@ func (o *SharkChipStatusTypeService) Get(dtoIn *dto.SharkChipStatusTypeDtoIn) (*
 	dtoOut.Hint = SharkChipStatusType.Hint
 
 	if SharkChipStatusType.CreationDateTime != nil {
-		dtoOut.CreationDateTime = SharkChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChipStatusType.CreationDateTime)
 	}
 
 	if SharkChipStatusType.ChangeDateTime != nil {
-		dtoOut.ChangeDateTime = SharkChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChipStatusType.ChangeDateTime)
 	}
 
 	if SharkChipStatusType.DisableDateTime != nil {
-		dtoOut.DisableDateTime = SharkChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+		dtoOut.DisableDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChipStatusType.DisableDateTime)
 	}
 
 	return dtoOut, nil
@@ -70,6 +72,7 @@ func (o *SharkChipStatusTypeService) GetAll(conditions ...interface{}) []*dto.Sh
 
 	for _, SharkChipStatusType := range arraySharkChipStatusType {
 
+		DateHelper := helper.NewDateHelper()
 		dtoOut := dto.NewSharkChipStatusTypeDtoOut()
 
 		dtoOut.Id = fmt.Sprintf("%d", SharkChipStatusType.Id)
@@ -78,15 +81,15 @@ func (o *SharkChipStatusTypeService) GetAll(conditions ...interface{}) []*dto.Sh
 		dtoOut.Hint = SharkChipStatusType.Hint
 
 		if SharkChipStatusType.CreationDateTime != nil {
-			dtoOut.CreationDateTime = SharkChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.CreationDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChipStatusType.CreationDateTime)
 		}
 
 		if SharkChipStatusType.ChangeDateTime != nil {
-			dtoOut.ChangeDateTime = SharkChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.ChangeDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChipStatusType.ChangeDateTime)
 		}
 
 		if SharkChipStatusType.DisableDateTime != nil {
-			dtoOut.DisableDateTime = SharkChipStatusType.CreationDateTime.Format("2006-01-02 15:04:05 -0700")
+			dtoOut.DisableDateTime = DateHelper.Format("2006-01-02 15:04:05", *SharkChipStatusType.DisableDateTime)
 		}
 
 		arraySharkChipStatusTypeDto = append(arraySharkChipStatusTypeDto, dtoOut)
