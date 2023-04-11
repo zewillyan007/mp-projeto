@@ -31,3 +31,11 @@ func FactoryChipStatusType() *entity.ChipStatusType {
 func FactorySharkChipStatusType() *entity.SharkChipStatusType {
 	return entity.NewSharkChipStatusType()
 }
+
+func FactoryMicrocontroller() *entity.Microcontroller {
+	return entity.NewMicrocontroller()
+}
+
+func FactoryLocation() *entity.Location {
+	return entity.NewLocation()
+}
