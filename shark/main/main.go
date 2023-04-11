@@ -32,6 +32,7 @@ func main() {
 	sr.AddHandler(adapter.NewChipHandlerRest(sr))
 	sr.AddHandler(adapter.NewChipStatusTypeHandlerRest(sr))
 	sr.AddHandler(adapter.NewIncidenceHandlerRest(sr))
+	sr.AddHandler(adapter.NewLocationHandlerRest(sr))
 	sr.AddHandler(adapter.NewMicrocontrollerHandlerRest(sr))
 	sr.AddHandler(adapter.NewSexHandlerRest(sr))
 	sr.AddHandler(adapter.NewSharkChipHandlerRest(sr))

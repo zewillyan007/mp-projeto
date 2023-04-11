@@ -25,8 +25,10 @@ func (h *IncidenceHandlerRest) MakeRoutes() {
 	scChip := service.NewChipService(NewChipRepository(h.resource.Db))
 	scSharkChip := service.NewSharkChipService(NewSharkChipRepository(h.resource.Db), scChip)
 	scShark := service.NewSharkService(NewSharkRepository(h.resource.Db), scSharkChip)
+	scMicrocontroller := service.NewMicrocontrollerService(NewMicrocontrollerRepository(h.resource.Db))
+	scLocation := service.NewLocationService(NewLocationRepository(h.resource.Db))
 
-	h.service = service.NewIncidenceService(NewIncidenceRepository(h.resource.Db), scSharkChip, scShark)
+	h.service = service.NewIncidenceService(NewIncidenceRepository(h.resource.Db), scSharkChip, scShark, scMicrocontroller, scLocation)
 
 	router := h.resource.DefaultRouter("/incidences", true)
 	router.Handle("", h.getAll()).Methods(http.MethodGet)

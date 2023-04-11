@@ -21,34 +21,40 @@ type IncidenceService struct {
 	ucRemove   *usecase.IncidenceUseCaseRemove
 
 	//SERVICES
-	scSharkChip *SharkChipService
-	scShark     *SharkService
+	scSharkChip       *SharkChipService
+	scShark           *SharkService
+	scMicrocontroller *MicrocontrollerService
+	scLocation        *LocationService
 }
 
-func NewIncidenceService(repository port.IncidenceIRepository, scSharkChip *SharkChipService, scShark *SharkService) *IncidenceService {
+func NewIncidenceService(repository port.IncidenceIRepository, scSharkChip *SharkChipService, scShark *SharkService, scMicrocontroller *MicrocontrollerService, scLocation *LocationService) *IncidenceService {
 
 	return &IncidenceService{
-		Repository:  repository,
-		ucGet:       usecase.NewIncidenceUseCaseGet(repository),
-		ucSave:      usecase.NewIncidenceUseCaseSave(repository),
-		ucGrid:      usecase.NewIncidenceUseCaseGrid(repository),
-		ucGetAll:    usecase.NewIncidenceUseCaseGetAll(repository),
-		ucRemove:    usecase.NewIncidenceUseCaseRemove(repository),
-		scSharkChip: scSharkChip,
-		scShark:     scShark,
+		Repository:        repository,
+		ucGet:             usecase.NewIncidenceUseCaseGet(repository),
+		ucSave:            usecase.NewIncidenceUseCaseSave(repository),
+		ucGrid:            usecase.NewIncidenceUseCaseGrid(repository),
+		ucGetAll:          usecase.NewIncidenceUseCaseGetAll(repository),
+		ucRemove:          usecase.NewIncidenceUseCaseRemove(repository),
+		scSharkChip:       scSharkChip,
+		scShark:           scShark,
+		scMicrocontroller: scMicrocontroller,
+		scLocation:        scLocation,
 	}
 }
 
 func (o *IncidenceService) WithTransaction(transaction port_shared.ITransaction) *IncidenceService {
 
 	return &IncidenceService{
-		ucGet:       o.ucGet,
-		ucSave:      o.ucSave.WithTransaction(transaction),
-		ucGrid:      o.ucGrid,
-		ucGetAll:    o.ucGetAll,
-		ucRemove:    o.ucRemove.WithTransaction(transaction),
-		scSharkChip: o.scSharkChip.WithTransaction(transaction),
-		scShark:     o.scShark.WithTransaction(transaction),
+		ucGet:             o.ucGet,
+		ucSave:            o.ucSave.WithTransaction(transaction),
+		ucGrid:            o.ucGrid,
+		ucGetAll:          o.ucGetAll,
+		ucRemove:          o.ucRemove.WithTransaction(transaction),
+		scSharkChip:       o.scSharkChip.WithTransaction(transaction),
+		scShark:           o.scShark.WithTransaction(transaction),
+		scMicrocontroller: o.scMicrocontroller.WithTransaction(transaction),
+		scLocation:        o.scLocation.WithTransaction(transaction),
 	}
 }
 
@@ -65,6 +71,7 @@ func (o *IncidenceService) Get(dtoIn *dto.IncidenceDtoIn) (*dto.IncidenceDtoOut,
 
 	dtoOut.Id = fmt.Sprintf("%d", Incidence.Id)
 	dtoOut.ChipNumber = Incidence.ChipNumber
+	dtoOut.MicrocontrollerSerialNumber = Incidence.MicrocontrollerSerialNumber
 
 	if Incidence.IncidenceDateTime != nil {
 		dtoOut.IncidenceDateTime = DateHelper.Format("2006-01-02 15:04:05", *Incidence.IncidenceDateTime)
@@ -76,6 +83,16 @@ func (o *IncidenceService) Get(dtoIn *dto.IncidenceDtoIn) (*dto.IncidenceDtoOut,
 		arrayShark := o.scShark.GetAll("id = ?", arraySharkChip[0].IdShark)
 		if len(arrayShark) > 0 {
 			dtoOut.Shark = arrayShark[0]
+		}
+	}
+
+	arrayMicrocontroller := o.scMicrocontroller.GetAll("serial_number = ?", Incidence.MicrocontrollerSerialNumber)
+
+	if len(arrayMicrocontroller) > 0 {
+		dtoOut.Microcontroller = arrayMicrocontroller[0]
+		arrayLocation := o.scLocation.GetAll("id = ?", dtoOut.Microcontroller.IdLocation)
+		if len(arrayLocation) > 0 {
+			dtoOut.Location = arrayLocation[0]
 		}
 	}
 
@@ -95,6 +112,7 @@ func (o *IncidenceService) GetAll(conditions ...interface{}) []*dto.IncidenceDto
 
 		dtoOut.Id = fmt.Sprintf("%d", Incidence.Id)
 		dtoOut.ChipNumber = Incidence.ChipNumber
+		dtoOut.MicrocontrollerSerialNumber = Incidence.MicrocontrollerSerialNumber
 
 		if Incidence.IncidenceDateTime != nil {
 			dtoOut.IncidenceDateTime = DateHelper.Format("2006-01-02 15:04:05", *Incidence.IncidenceDateTime)
@@ -106,6 +124,16 @@ func (o *IncidenceService) GetAll(conditions ...interface{}) []*dto.IncidenceDto
 			arrayShark := o.scShark.GetAll("id = ?", arraySharkChip[0].IdShark)
 			if len(arrayShark) > 0 {
 				dtoOut.Shark = arrayShark[0]
+			}
+		}
+
+		arrayMicrocontroller := o.scMicrocontroller.GetAll("serial_number = ?", Incidence.MicrocontrollerSerialNumber)
+
+		if len(arrayMicrocontroller) > 0 {
+			dtoOut.Microcontroller = arrayMicrocontroller[0]
+			arrayLocation := o.scLocation.GetAll("id = ?", dtoOut.Microcontroller.IdLocation)
+			if len(arrayLocation) > 0 {
+				dtoOut.Location = arrayLocation[0]
 			}
 		}
 
@@ -126,6 +154,8 @@ func (o *IncidenceService) Save(dtoIn *dto.IncidenceDtoIn) error {
 	}
 
 	Incidence.ChipNumber = dtoIn.ChipNumber
+	Incidence.MicrocontrollerSerialNumber = dtoIn.MicrocontrollerSerialNumber
+
 	now := time.Now()
 
 	if len(dtoIn.IncidenceDateTime) == 0 {
